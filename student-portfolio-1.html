@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Probability & Statistics — Student Projects</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #08090f;
+  --card: #0f1117;
+  --card-hover: #141720;
+  --border: #1c2030;
+  --border-active: #2a3550;
+  --accent: #4f8ef7;
+  --cyan: #22d3ee;
+  --green: #22c55e;
+  --amber: #f59e0b;
+  --text: #e4e8f0;
+  --sub: #8892a4;
+  --dim: #3d4a60;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Sora', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+body::before {
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image: radial-gradient(circle, rgba(79,142,247,0.055) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events:none;
+  z-index:0;
+}
+
+/* HEADER */
+header {
+  position:relative; z-index:5;
+  padding: 52px 48px 36px;
+  border-bottom: 1px solid var(--border);
+}
+.header-inner {
+  max-width: 1280px; margin: 0 auto;
+  display: flex; justify-content: space-between; align-items: flex-end;
+  gap: 32px; flex-wrap: wrap;
+}
+.eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--cyan); margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.eyebrow::before { content:''; width:20px; height:1px; background:var(--cyan); }
+h1 {
+  font-size: clamp(26px,3.5vw,42px); font-weight:700; color:#fff;
+  line-height:1.15; letter-spacing:-0.02em;
+}
+h1 span { color: var(--accent); }
+.header-sub { margin-top:8px; font-size:14px; color:var(--sub); font-weight:300; }
+.stat-row { display:flex; gap:12px; flex-wrap:wrap; }
+.stat {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:10px; padding:14px 20px; text-align:center; min-width:80px;
+}
+.stat-num {
+  font-family:'JetBrains Mono',monospace; font-size:24px;
+  font-weight:500; color:#fff; display:block; line-height:1;
+}
+.stat-lbl { font-size:10px; color:var(--sub); text-transform:uppercase; letter-spacing:0.08em; margin-top:5px; }
+
+/* CONTROLS */
+.controls {
+  position:sticky; top:0; z-index:20;
+  background:rgba(8,9,15,0.92); backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border); padding:12px 48px;
+}
+.controls-inner {
+  max-width:1280px; margin:0 auto;
+  display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+}
+.search-box { position:relative; flex:1; min-width:180px; max-width:280px; }
+.search-box svg {
+  position:absolute; left:11px; top:50%; transform:translateY(-50%);
+  color:var(--dim); pointer-events:none;
+}
+input[type="search"] {
+  width:100%; background:var(--card); border:1px solid var(--border);
+  border-radius:8px; color:var(--text); font-family:'Sora',sans-serif;
+  font-size:13px; padding:8px 12px 8px 34px; outline:none; transition:border-color 0.2s;
+}
+input[type="search"]:focus { border-color:var(--accent); }
+input[type="search"]::placeholder { color:var(--dim); }
+.filters { display:flex; gap:6px; flex-wrap:wrap; }
+.f-btn {
+  background:var(--card); border:1px solid var(--border); border-radius:7px;
+  color:var(--sub); font-family:'Sora',sans-serif; font-size:12px; font-weight:500;
+  padding:6px 14px; cursor:pointer; transition:all 0.16s; white-space:nowrap;
+}
+.f-btn:hover { border-color:var(--dim); color:var(--text); }
+.f-btn.on { background:var(--accent); border-color:var(--accent); color:#fff; }
+.count-badge {
+  margin-left:auto; font-family:'JetBrains Mono',monospace;
+  font-size:11px; color:var(--sub); white-space:nowrap;
+}
+
+/* GRID */
+main { max-width:1280px; margin:0 auto; padding:32px 48px 72px; position:relative; z-index:1; }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px; }
+
+/* CARD */
+.card {
+  background:var(--card); border:1px solid var(--border); border-radius:14px;
+  padding:24px; cursor:pointer;
+  transition:background 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  animation:fadeUp 0.35s ease both;
+  display:flex; flex-direction:column; gap:10px;
+  position:relative; overflow:hidden;
+}
+@keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+.card:hover {
+  background:var(--card-hover); border-color:var(--border-active);
+  transform:translateY(-2px); box-shadow:0 8px 28px rgba(0,0,0,0.5);
+}
+.card::before {
+  content:''; position:absolute; left:0; top:16px; bottom:16px;
+  width:3px; border-radius:0 3px 3px 0; transition:background 0.3s;
+}
+.card[data-status="not-started"]::before { background:var(--dim); }
+.card[data-status="in-progress"]::before { background:var(--amber); }
+.card[data-status="completed"]::before   { background:var(--green); }
+
+.card-top { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
+.s-num {
+  font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--dim);
+  padding:3px 7px; background:rgba(255,255,255,0.03);
+  border:1px solid var(--border); border-radius:4px; flex-shrink:0;
+}
+.tool-row { display:flex; gap:4px; flex-wrap:wrap; justify-content:flex-end; }
+.chip {
+  font-family:'JetBrains Mono',monospace; font-size:9px; font-weight:500;
+  padding:2px 6px; border-radius:4px; border:1px solid; letter-spacing:0.04em;
+}
+.chip.py  { color:#60a5fa; border-color:rgba(96,165,250,0.2); background:rgba(96,165,250,0.07); }
+.chip.xl  { color:#34d399; border-color:rgba(52,211,153,0.2); background:rgba(52,211,153,0.07); }
+.chip.np  { color:#a78bfa; border-color:rgba(167,139,250,0.2); background:rgba(167,139,250,0.07); }
+.chip.pd  { color:#fb923c; border-color:rgba(251,146,60,0.2);  background:rgba(251,146,60,0.07); }
+.chip.ot  { color:var(--sub); border-color:var(--border); }
+
+.s-name  { font-size:15px; font-weight:600; color:#fff; line-height:1.3; }
+.s-title { font-size:12.5px; font-weight:500; color:var(--cyan); line-height:1.4; }
+.s-desc  { font-size:12px; color:var(--sub); line-height:1.65; flex:1; }
+
+.card-bottom {
+  padding-top:12px; border-top:1px solid var(--border);
+  display:flex; align-items:center; gap:10px;
+}
+.prog-bar { flex:1; height:3px; background:var(--border); border-radius:100px; overflow:hidden; }
+.prog-fill {
+  height:100%; border-radius:100px;
+  background:linear-gradient(90deg,var(--accent),var(--cyan));
+  transition:width 0.5s ease;
+}
+.card[data-status="completed"] .prog-fill { background:var(--green); }
+.card[data-status="in-progress"] .prog-fill { background:var(--amber); }
+.prog-pct { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--dim); min-width:28px; text-align:right; }
+
+/* MODAL */
+.backdrop {
+  position:fixed; inset:0; background:rgba(0,0,0,0.78);
+  backdrop-filter:blur(14px); z-index:100;
+  display:none; align-items:center; justify-content:center; padding:20px;
+}
+.backdrop.open { display:flex; animation:bfIn 0.18s ease; }
+@keyframes bfIn { from{opacity:0} to{opacity:1} }
+.modal {
+  background:#0f1117; border:1px solid var(--border-active);
+  border-radius:18px; width:100%; max-width:520px;
+  max-height:92vh; overflow-y:auto;
+  animation:mUp 0.22s ease; position:relative;
+}
+@keyframes mUp { from{transform:translateY(18px);opacity:0} to{transform:translateY(0);opacity:1} }
+
+.modal-stripe { height:3px; border-radius:18px 18px 0 0; transition:background 0.3s; }
+.modal-stripe.not-started { background:var(--dim); }
+.modal-stripe.in-progress { background:var(--amber); }
+.modal-stripe.completed   { background:var(--green); }
+
+.modal-head {
+  padding:28px 28px 22px; border-bottom:1px solid var(--border); position:relative;
+}
+.m-close {
+  position:absolute; top:20px; right:20px;
+  background:rgba(255,255,255,0.05); border:1px solid var(--border);
+  border-radius:8px; color:var(--sub); font-size:14px;
+  width:32px; height:32px; display:flex; align-items:center; justify-content:center;
+  cursor:pointer; transition:all 0.15s; line-height:1; font-family:sans-serif;
+}
+.m-close:hover { color:var(--text); border-color:var(--dim); }
+.m-num {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  letter-spacing:0.12em; text-transform:uppercase; color:var(--cyan); margin-bottom:10px;
+}
+.m-name  { font-size:22px; font-weight:700; color:#fff; margin-bottom:4px; letter-spacing:-0.02em; }
+.m-title { font-size:14px; font-weight:500; color:var(--accent); margin-bottom:14px; }
+.m-chips { display:flex; gap:5px; flex-wrap:wrap; }
+
+.modal-body { padding:24px 28px 28px; display:flex; flex-direction:column; gap:22px; }
+
+.desc-block {
+  background:rgba(255,255,255,0.02); border:1px solid var(--border);
+  border-radius:10px; padding:18px;
+}
+.block-label {
+  font-size:10px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase;
+  color:var(--dim); margin-bottom:10px;
+}
+.desc-text { font-size:14px; color:var(--sub); line-height:1.8; }
+
+/* STATUS PILLS */
+.status-switcher { display:flex; gap:8px; }
+.s-pill {
+  flex:1; padding:11px 8px; border-radius:9px; border:1px solid var(--border);
+  background:transparent; color:var(--sub); font-family:'Sora',sans-serif;
+  font-size:12px; font-weight:500; cursor:pointer; transition:all 0.18s;
+  text-align:center; line-height:1.5;
+}
+.s-pill:hover { border-color:var(--dim); color:var(--text); }
+.s-pill-icon { font-size:15px; display:block; margin-bottom:4px; }
+.s-pill.active[data-val="not-started"] {
+  background:rgba(61,74,96,0.3); border-color:var(--dim); color:#fff;
+}
+.s-pill.active[data-val="in-progress"] {
+  background:rgba(245,158,11,0.1); border-color:rgba(245,158,11,0.5); color:var(--amber);
+}
+.s-pill.active[data-val="completed"] {
+  background:rgba(34,197,94,0.1); border-color:rgba(34,197,94,0.5); color:var(--green);
+}
+
+/* PROGRESS */
+.prog-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+.prog-num { font-family:'JetBrains Mono',monospace; font-size:22px; font-weight:500; color:#fff; }
+.prog-track { height:6px; background:var(--border); border-radius:100px; overflow:hidden; }
+.prog-inner { height:100%; border-radius:100px; transition:width 0.6s ease, background 0.3s; }
+
+/* LINKS */
+.links-row { display:flex; gap:8px; flex-wrap:wrap; }
+.link-btn {
+  display:flex; align-items:center; gap:6px;
+  background:rgba(255,255,255,0.03); border:1px solid var(--border);
+  border-radius:8px; color:var(--sub); font-family:'Sora',sans-serif;
+  font-size:12px; font-weight:500; padding:9px 14px; cursor:pointer;
+  transition:all 0.16s; text-decoration:none;
+}
+.link-btn:hover { border-color:var(--accent); color:var(--accent); }
+
+.empty { grid-column:1/-1; text-align:center; padding:80px 20px; color:var(--dim); font-size:14px; }
+
+::-webkit-scrollbar { width:5px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--dim); border-radius:3px; }
+
+@media(max-width:600px) {
+  header, .controls, main { padding-left:16px; padding-right:16px; }
+  .grid { grid-template-columns:1fr; }
+  .status-switcher { flex-direction:column; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div>
+      <div class="eyebrow">Academic Year 2024–25</div>
+      <h1>Statistics &amp; <span>Probability</span><br>Project Portfolio</h1>
+      <p class="header-sub">33 individual student projects · Python &amp; Excel</p>
+    </div>
+    <div class="stat-row">
+      <div class="stat"><span class="stat-num">33</span><div class="stat-lbl">Total</div></div>
+      <div class="stat"><span class="stat-num" id="s-done">0</span><div class="stat-lbl">Done</div></div>
+      <div class="stat"><span class="stat-num" id="s-prog">0</span><div class="stat-lbl">Active</div></div>
+      <div class="stat"><span class="stat-num" id="s-avg">0%</span><div class="stat-lbl">Avg</div></div>
+    </div>
+  </div>
+</header>
+
+<div class="controls">
+  <div class="controls-inner">
+    <div class="search-box">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="search" id="q" placeholder="Search name or project…">
+    </div>
+    <div class="filters">
+      <button class="f-btn on" data-f="all">All</button>
+      <button class="f-btn" data-f="python">Python</button>
+      <button class="f-btn" data-f="excel">Excel</button>
+      <button class="f-btn" data-f="not-started">Not Started</button>
+      <button class="f-btn" data-f="in-progress">In Progress</button>
+      <button class="f-btn" data-f="completed">Completed</button>
+    </div>
+    <span class="count-badge" id="cnt"></span>
+  </div>
+</div>
+
+<main><div class="grid" id="grid"></div></main>
+
+<div class="backdrop" id="modal">
+  <div class="modal">
+    <div class="modal-stripe" id="m-stripe"></div>
+    <div class="modal-head">
+      <button class="m-close" id="m-close">✕</button>
+      <div class="m-num" id="m-num"></div>
+      <div class="m-name" id="m-name"></div>
+      <div class="m-title" id="m-title"></div>
+      <div class="m-chips" id="m-chips"></div>
+    </div>
+    <div class="modal-body">
+
+      <div class="desc-block">
+        <div class="block-label">What this project does</div>
+        <div class="desc-text" id="m-desc"></div>
+      </div>
+
+      <div>
+        <div class="block-label" style="margin-bottom:10px">Project Status</div>
+        <div class="status-switcher">
+          <button class="s-pill" data-val="not-started"><span class="s-pill-icon">⚫</span>Not Started</button>
+          <button class="s-pill" data-val="in-progress"><span class="s-pill-icon">🟡</span>In Progress</button>
+          <button class="s-pill" data-val="completed"><span class="s-pill-icon">🟢</span>Completed</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="prog-header">
+          <div class="block-label" style="margin:0">Completion</div>
+          <div class="prog-num" id="m-pct">0%</div>
+        </div>
+        <div class="prog-track">
+          <div class="prog-inner" id="m-bar" style="width:0%"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="block-label" style="margin-bottom:10px">Deliverables</div>
+        <div class="links-row">
+          <button class="link-btn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.929.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+            GitHub Repo
+          </button>
+          <button class="link-btn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+            Google Sheet
+          </button>
+          <button class="link-btn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Output
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const DATA = [
+  { sn:1,  name:"Aatif Hussain Bhat",      title:"Dice Probability Simulator",    desc:"Simulates hundreds of dice rolls and compares what the math says should happen (theoretical) versus what actually happens (experimental). Results are shown as bar charts so the difference is easy to see.", tools:["Python","Matplotlib"] },
+  { sn:2,  name:"Ashaq Hussain Khan",      title:"Coin Toss Prediction",          desc:"Runs thousands of coin tosses in code and tracks how the heads/tails ratio slowly approaches 50-50 over time. A clear, visual demonstration of the Law of Large Numbers.", tools:["Python","NumPy"] },
+  { sn:3,  name:"Basit Ayoub Misgar",      title:"Student Pass Probability",      desc:"Uses marks data and basic probability to predict whether a student is likely to pass or fail. Data is entered in Excel and Python handles the probability calculations.", tools:["Excel","Python"] },
+  { sn:4,  name:"Burhaan Hussain Masoodi", title:"Card Drawing Probability",      desc:"Calculates the chances of pulling specific cards from a 52-card deck — like drawing an Ace or getting a Heart. Covers favorable outcomes, sample space, and how probability changes with each draw.", tools:["Python"] },
+  { sn:5,  name:"Danish Ahmad Haroon",     title:"Rain Prediction Model",         desc:"Loads a weather dataset and uses past rain records to calculate the probability of rain on any given day. Applies Pandas for data filtering and conditional probability for the prediction logic.", tools:["Python","Pandas"] },
+  { sn:6,  name:"Fiza Qayoom",             title:"Survey Data Analysis",          desc:"Takes real survey responses and finds the mean, median, and mode to summarize what most people answered. Done entirely in Excel with charts that make the findings clear at a glance.", tools:["Excel"] },
+  { sn:7,  name:"Furkaan Bilal",           title:"Random Number Distribution",    desc:"Generates a large batch of random numbers and studies how evenly they are spread across a range. Uses histograms to verify whether the distribution is truly uniform.", tools:["Python","NumPy"] },
+  { sn:8,  name:"Heeba Mushtaq",           title:"Height Distribution Analysis",  desc:"Collects height measurements from students and checks if they follow a normal bell curve. Plots the distribution and calculates the mean and standard deviation to confirm the shape.", tools:["Excel","Python"] },
+  { sn:9,  name:"Hurmat Showket",          title:"Attendance Probability",        desc:"Looks at student attendance records and calculates the probability of a student showing up on any given day. Uses Excel charts to reveal patterns and trends over weeks and months.", tools:["Excel"] },
+  { sn:10, name:"Hyder Ali",               title:"Cricket Score Probability",     desc:"Analyzes past cricket match data and calculates how likely a team is to score within certain run ranges. Turns sports history into a practical statistics problem with clear outputs.", tools:["Python"] },
+  { sn:11, name:"Junaid Amin",             title:"Queue Waiting Time Simulation", desc:"Simulates a waiting line — like at a shop or bank — and calculates average wait times and the probability of waiting longer than a set limit. Built using random number generation.", tools:["Python"] },
+  { sn:12, name:"Junaid Khan",             title:"Lottery Winning Chance",        desc:"Calculates the exact mathematical probability of winning a lottery under different ticket and number configurations. Shows how combinations and permutations determine your real odds.", tools:["Python"] },
+  { sn:13, name:"Kaiser Majeed Bhat",      title:"Data Variance Analysis",        desc:"Measures how spread out different datasets are using variance and standard deviation. Compares multiple datasets side by side to show which is more consistent and which is more scattered.", tools:["Excel"] },
+  { sn:14, name:"Kasheef Farooq Zargar",   title:"Traffic Probability Model",     desc:"Uses time-of-day traffic data to estimate the probability of congestion during different hours. Models how peak times affect congestion likelihood and visualizes it through graphs.", tools:["Python"] },
+  { sn:15, name:"Majid Fayaz Bhat",        title:"Sales Probability Forecast",    desc:"Predicts future product demand by applying probability models to past sales records. Uses Excel for data organization and Python for the statistical forecasting logic.", tools:["Excel","Python"] },
+  { sn:16, name:"Manan Bashir",            title:"Random Walk Simulation",        desc:"Simulates a random walk where each step is taken in a random direction. Studies the statistical properties of how far the walker travels and what patterns emerge over many trials.", tools:["Python"] },
+  { sn:17, name:"Mir Momim Muzaffar",      title:"Exam Score Distribution",       desc:"Collects class exam scores and analyzes how marks are spread out. Calculates averages, spread, and percentile ranks, then visualizes the full distribution using Excel charts.", tools:["Excel"] },
+  { sn:18, name:"Mohd Faiz",               title:"Email Spam Classifier",         desc:"Builds a basic spam detector using Naive Bayes — a method that calculates the probability an email is spam based on which words it contains. A real-world application of Bayesian probability.", tools:["Python","Naive Bayes"] },
+  { sn:19, name:"Mohd Sameer",             title:"Weather Data Analysis",         desc:"Analyzes temperature data across multiple months to find averages, trends, and variability. Uses Excel functions and line charts to make seasonal patterns easy to read.", tools:["Excel"] },
+  { sn:20, name:"Mohd Shoaib Mir",         title:"System Failure Probability",    desc:"Calculates the probability of a system (like a machine or network) failing within a certain time window. Applies reliability theory and exponential probability distribution using Python.", tools:["Python"] },
+  { sn:21, name:"Mufeeq Nabi",             title:"Customer Visit Probability",    desc:"Analyzes shop visit data to predict how likely customers are to arrive at different times of day. Helps identify peak hours and slow periods through frequency-based probability in Excel.", tools:["Excel"] },
+  { sn:22, name:"Mujtiba Altaf",           title:"Disease Risk Probability",      desc:"Uses symptom data to estimate the probability that a patient has a specific illness. Applies conditional probability reasoning to a simplified medical dataset — similar to how diagnostic tools work.", tools:["Python"] },
+  { sn:23, name:"Shahid Bashir",           title:"Sports Win Prediction",         desc:"Analyzes a team's historical match results to calculate the probability of winning their next game. Uses win/loss ratios and frequency-based probability on real sports data.", tools:["Python"] },
+  { sn:24, name:"Syed Basit",              title:"Mean vs Median Comparison",     desc:"Takes real-world datasets like income or prices and compares mean and median to show how a few extreme values can distort the average. Results presented clearly in Excel with supporting charts.", tools:["Excel"] },
+  { sn:25, name:"Syed Sahil Farooq",       title:"Stock Trend Probability",       desc:"Processes historical stock price data to estimate the probability of prices moving up or down over a set period. Applies basic statistical modeling to financial data using Python.", tools:["Python"] },
+  { sn:26, name:"Tahir Bashir Kuchay",     title:"Demand Forecast Probability",   desc:"Forecasts future product demand by studying past sales patterns. Identifies the probability of high-demand and low-demand periods using Excel's statistical functions and trend lines.", tools:["Excel"] },
+  { sn:27, name:"Uzair Mehraj",            title:"Binary Outcome Prediction",     desc:"Builds a simple model that predicts a yes/no outcome — like pass or fail — based on input data. Uses threshold-based probability classification implemented in Python.", tools:["Python"] },
+  { sn:28, name:"Uzair Mushtaq Bhat",      title:"Data Sampling Techniques",      desc:"Compares three sampling methods — random, systematic, and stratified — applied to the same dataset. Analyzes how each method affects the accuracy and fairness of the statistical estimates.", tools:["Excel","Python"] },
+  { sn:29, name:"Yusra Jan",               title:"Survey Probability Analysis",   desc:"Calculates the probability of different answer choices appearing in survey data. Identifies majority patterns and opinion distributions using probability formulas in Excel.", tools:["Excel"] },
+  { sn:30, name:"Zaheena Majeed",          title:"Normal Distribution Model",     desc:"Generates a dataset that follows a normal distribution and studies the bell curve shape. Verifies the 68-95-99.7 rule and shows how data clusters tightly around the mean.", tools:["Python"] },
+  { sn:31, name:"Zahir Zahoor Mir",        title:"Risk Probability Analysis",     desc:"Identifies risk factors in a dataset and computes the probability of a risky outcome occurring. Applies core probability theory to practical, real-world risk assessment scenarios.", tools:["Python"] },
+  { sn:32, name:"Zian Mushtaq",            title:"Random Event Simulation",       desc:"Simulates random events like dice rolls or card draws thousands of times and compares simulated probabilities with the theoretical values expected from the math.", tools:["Python"] },
+  { sn:33, name:"Zikra Batool",            title:"Data Visualization Statistics", desc:"Takes a statistics dataset and presents it through multiple chart formats — histograms, pie charts, bar graphs — to make complex data easy to read and understand. Uses both Excel and Matplotlib.", tools:["Excel","Matplotlib"] },
+];
+
+function chipClass(t) {
+  return t==='Python'?'py': t==='Excel'?'xl': t==='NumPy'?'np': t==='Pandas'?'pd': 'ot';
+}
+function chips(tools) {
+  return tools.map(t=>`<span class="chip ${chipClass(t)}">${t}</span>`).join('');
+}
+
+function load() { try { return JSON.parse(localStorage.getItem('psp3')||'{}'); } catch { return {}; } }
+function save() { try { localStorage.setItem('psp3', JSON.stringify(ST)); } catch {} }
+let ST = load();
+
+function get(sn) {
+  const s = ST[sn]||{};
+  return { status: s.status||'not-started', progress: s.progress||0 };
+}
+
+function setStatus(sn, status) {
+  if(!ST[sn]) ST[sn]={};
+  ST[sn].status = status;
+  ST[sn].progress = status==='completed'?100: status==='in-progress'?50: 0;
+  save(); renderGrid(); updateStats();
+  if(activeSn===sn) syncModal(sn);
+}
+
+let filt='all', q='', activeSn=null;
+
+function pyTools(t) { return ['Python','NumPy','Pandas','Matplotlib','Naive Bayes'].includes(t); }
+
+function filtered() {
+  let list=[...DATA];
+  if(q) { const lq=q.toLowerCase(); list=list.filter(s=>s.name.toLowerCase().includes(lq)||s.title.toLowerCase().includes(lq)); }
+  if(filt==='python') list=list.filter(s=>s.tools.some(pyTools));
+  if(filt==='excel')  list=list.filter(s=>s.tools.includes('Excel'));
+  if(filt==='not-started') list=list.filter(s=>get(s.sn).status==='not-started');
+  if(filt==='in-progress') list=list.filter(s=>get(s.sn).status==='in-progress');
+  if(filt==='completed')   list=list.filter(s=>get(s.sn).status==='completed');
+  return list;
+}
+
+function renderGrid() {
+  const list=filtered();
+  const el=document.getElementById('grid');
+  document.getElementById('cnt').textContent=`${list.length} / ${DATA.length} students`;
+  if(!list.length) { el.innerHTML='<div class="empty">No students match this filter.</div>'; return; }
+  el.innerHTML=list.map((s,i)=>{
+    const st=get(s.sn);
+    return `
+      <div class="card" data-sn="${s.sn}" data-status="${st.status}"
+           style="animation-delay:${i*0.025}s" onclick="openModal(${s.sn})">
+        <div class="card-top">
+          <span class="s-num">#${String(s.sn).padStart(2,'0')}</span>
+          <div class="tool-row">${chips(s.tools)}</div>
+        </div>
+        <div class="s-name">${s.name}</div>
+        <div class="s-title">${s.title}</div>
+        <div class="s-desc">${s.desc}</div>
+        <div class="card-bottom">
+          <div class="prog-bar"><div class="prog-fill" style="width:${st.progress}%"></div></div>
+          <span class="prog-pct">${st.progress}%</span>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function updateStats() {
+  const done=DATA.filter(s=>get(s.sn).status==='completed').length;
+  const prog=DATA.filter(s=>get(s.sn).status==='in-progress').length;
+  const avg=Math.round(DATA.reduce((a,s)=>a+get(s.sn).progress,0)/DATA.length);
+  document.getElementById('s-done').textContent=done;
+  document.getElementById('s-prog').textContent=prog;
+  document.getElementById('s-avg').textContent=avg+'%';
+}
+
+function openModal(sn) {
+  activeSn=sn;
+  const s=DATA.find(x=>x.sn===sn);
+  document.getElementById('m-num').textContent=`Student · #${String(sn).padStart(2,'0')}`;
+  document.getElementById('m-name').textContent=s.name;
+  document.getElementById('m-title').textContent=s.title;
+  document.getElementById('m-chips').innerHTML=chips(s.tools);
+  document.getElementById('m-desc').textContent=s.desc;
+  syncModal(sn);
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function syncModal(sn) {
+  const st=get(sn);
+  document.getElementById('m-stripe').className='modal-stripe '+st.status;
+  document.querySelectorAll('.s-pill').forEach(p=>p.classList.toggle('active',p.dataset.val===st.status));
+  document.getElementById('m-pct').textContent=st.progress+'%';
+  const bar=document.getElementById('m-bar');
+  bar.style.width=st.progress+'%';
+  bar.style.background=st.status==='completed'?'var(--green)':st.status==='in-progress'?'var(--amber)':'linear-gradient(90deg,var(--accent),var(--cyan))';
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow='';
+  activeSn=null;
+}
+
+document.querySelectorAll('.s-pill').forEach(p=>{
+  p.addEventListener('click',()=>{ if(activeSn) setStatus(activeSn,p.dataset.val); });
+});
+document.getElementById('m-close').addEventListener('click',closeModal);
+document.getElementById('modal').addEventListener('click',e=>{ if(e.target===document.getElementById('modal')) closeModal(); });
+document.getElementById('q').addEventListener('input',function(){ q=this.value; renderGrid(); });
+document.querySelectorAll('.f-btn').forEach(b=>{
+  b.addEventListener('click',function(){
+    document.querySelectorAll('.f-btn').forEach(x=>x.classList.remove('on'));
+    this.classList.add('on'); filt=this.dataset.f; renderGrid();
+  });
+});
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
+
+renderGrid();
+updateStats();
+</script>
+</body>
+</html>
