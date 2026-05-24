@@ -58,6 +58,9 @@ This project helped me understand:
 Real-world use of probability
 Data handling using Pandas
 How to manage and share projects using GitHub and Google Sheets
+THIS IS THE LINK OF MY GOOGLE SHEET 
+https://docs.google.com/spreadsheets/d/1Rc7r90H2ytwgzF7rhVfUcHKLXPVhw0BA_VJXYDI9XxY/edit?usp=drivesdk
+
 ## Working Days
 
 | Date | Work Done |
